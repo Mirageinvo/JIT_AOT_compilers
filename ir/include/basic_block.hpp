@@ -15,7 +15,7 @@ public:
     NO_COPY_AND_MOVE_SEMANTICS(BB);
     ~BB() = default;
 
-    uint64_t GetId()
+    uint64_t GetId() const
     {
         return id_;
     }
@@ -27,9 +27,16 @@ public:
     {
         return predecessors_;
     }
-    auto& GetSuccessors()
+    std::vector<BB*> GetSuccessors() const
     {
-        return succesors_;
+        std::vector<BB*> successors;
+        if (succesors_.firstSuccessor != nullptr) {
+            successors.emplace_back(succesors_.firstSuccessor);
+        }
+        if (succesors_.secondSuccessor != nullptr) {
+            successors.emplace_back(succesors_.secondSuccessor);
+        }
+        return successors;
     }
     Instruction* GetBeginBB()
     {
@@ -47,10 +54,10 @@ public:
     {
         graph_ = newGraph;
     }
-    void AddPred(BB* bb);
-    void DeletePred(BB* bb);
-    void AddSucc(BB* bb);
-    void DeleteSucc(BB* bb);
+    void AddPredecessor(BB* bb);
+    void DeletePredecessor(BB* bb);
+    void AddSuccessor(BB* bb);
+    void DeleteSuccessor(BB* bb);
     void InsertInstrBefore(Instruction* insert, Instruction* anchor);
     void InsertInstrAfter(Instruction* insert, Instruction* anchor);
     void RemoveInstr(Instruction* instr);

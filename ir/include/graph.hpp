@@ -3,7 +3,10 @@
 
 #include "basic_block.hpp"
 #include "defines.hpp"
+#include <cassert>
 #include <vector>
+#include <set>
+#include <unordered_map>
 
 namespace IRGen {
 class Graph final {
@@ -55,10 +58,26 @@ public:
     void AddSuccessorBB(BB* newBB, BB* toBB);
     void DeletePredecessors(BB* bb);
     void DeleteSuccessors(BB* bb);
-    void Print();
+    void Print() const;
+    std::unordered_map<BB*, std::set<BB*>> BuildDominatorTree();
+
+    static void Dfs(const BB* bb, std::set<uint64_t>& visited, BB* excludedBB = nullptr)
+    {
+        if (bb == nullptr || bb == excludedBB) {
+            return;
+        }
+        visited.insert(bb->GetId());
+        for (const auto* successor : bb->GetSuccessors()) {
+            assert(successor != nullptr);
+            if (visited.find(successor->GetId()) == visited.end()) {
+                Dfs(successor, visited, excludedBB);
+            }
+        }
+    }
 
 private:
-    void CheckConsistency(BB* newBB, BB* toBB);
+    void CheckConsistency(BB* newBB, BB* toBB) const;
+
     uint64_t BBCounter_ = 0;
     BB* firstBB_;
     BB* lastBB_;

@@ -71,7 +71,7 @@ void BB::RemoveInstr(Instruction* instr)
     }
 }
 
-void BB::AddPred(BB* bb)
+void BB::AddPredecessor(BB* bb)
 {
     if (bb == nullptr) {
         throw std::runtime_error("BasicBlock is nullptr");
@@ -79,7 +79,7 @@ void BB::AddPred(BB* bb)
     predecessors_.push_back(bb);
 }
 
-void BB::DeletePred(BB* bb)
+void BB::DeletePredecessor(BB* bb)
 {
     if (bb == nullptr) {
         throw std::runtime_error("BasicBlock is nullptr");
@@ -92,26 +92,25 @@ void BB::DeletePred(BB* bb)
     }
 }
 
-void BB::AddSucc(BB* bb)
+void BB::AddSuccessor(BB* bb)
 {
-    size_t suc_number = succesors_.number;
-    assert(suc_number <= 2);
+    assert(succesors_.number <= 2);
     if (bb == nullptr) {
         throw std::runtime_error("BasicBlock is nullptr");
     }
-    if (suc_number == 2) {
+    if (succesors_.number == 2) {
         throw std::runtime_error("Attempt to add more than 2 successors");
     }
 
-    if (suc_number == 0) {
+    if (succesors_.number == 0) {
         succesors_.firstSuccessor = bb;
     } else {
         succesors_.secondSuccessor = bb;
     }
-    suc_number++;
+    succesors_.number++;
 }
 
-void BB::DeleteSucc(BB* bb)
+void BB::DeleteSuccessor(BB* bb)
 {
     if (bb == nullptr) {
         throw std::runtime_error("BasicBlock is nullptr");
