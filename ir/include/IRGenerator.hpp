@@ -15,7 +15,7 @@ public:
         Clear();
     }
     void CreateGraph();
-    BB* CreateEmptyBB();
+    BB* CreateEmptyBB(std::string name = "");
     Graph* GetGraph() const
     {
         return graph_;

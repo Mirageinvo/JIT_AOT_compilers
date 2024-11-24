@@ -10,8 +10,8 @@ class Graph;
 
 class BB {
 public:
-    BB() = default;
-    explicit BB(Graph* graph, uint64_t id) : id_(id), graph_(graph) {};
+    BB(std::string name) : name_(name) {}
+    explicit BB(Graph* graph, uint64_t id) : graph_(graph), id_(id) {};
     NO_COPY_AND_MOVE_SEMANTICS(BB);
     ~BB() = default;
 
@@ -22,6 +22,10 @@ public:
     void SetId(uint64_t id)
     {
         id_ = id;
+    }
+    const std::string& GetName() const
+    {
+        return name_;
     }
     std::vector<BB*>& GetPredecessors()
     {
@@ -68,14 +72,15 @@ public:
 private:
     std::vector<BB*> predecessors_;
     struct {
-        BB* firstSuccessor = nullptr;
-        BB* secondSuccessor = nullptr;
-        size_t number = 0;
+        BB* firstSuccessor {nullptr};
+        BB* secondSuccessor {nullptr};
+        size_t number {0};
     } succesors_;
     Instruction* beginBB_ = nullptr;
     Instruction* endBB_ = nullptr;
     Graph* graph_ = nullptr;
     uint64_t id_;
+    std::string name_;
 };
 }  // namespace IRGen
 

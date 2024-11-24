@@ -3,6 +3,7 @@ set(SOURCES
     IRGenerator.cpp
     basic_block.cpp
     instruction.cpp
+    loop.cpp
 )
 
 include_directories(include)

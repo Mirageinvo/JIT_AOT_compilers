@@ -10,13 +10,12 @@ void IRGenerator::CreateGraph()
         graph_ = new Graph();
     }
 }
-BB* IRGenerator::CreateEmptyBB()
+BB* IRGenerator::CreateEmptyBB(std::string name)
 {
-    auto* bb = new BB();
+    auto* bb = new BB(name);
     BBs_.push_back(bb);
     if (graph_ != nullptr) {
         graph_->AddBB(bb, graph_->GetBBCounter());
-        graph_->IncreaseBBCounter();  // increasing number of created basic blocks
     }
     return bb;
 }
