@@ -141,6 +141,12 @@ Loop* Graph::BuildLoopTree()
             loop->SetHasAncestor(true);
         }
     }
+    // Vertexes that are not assigned to any loop are going to be added to rootLoop_
+    for (const auto& bb : rpo_order) {
+        if (bb_to_loop_map.find(bb) == bb_to_loop_map.end()) {
+            rootLoop_->AddInnerBlock(bb);
+        }
+    }
     return rootLoop_;
 }
 
@@ -182,6 +188,7 @@ void Graph::ReverseTraverse(BB* cur_vertex, Loop* cur_loop, std::set<BB*>& visit
     auto iter_in_bb_to_loop_map = bb_to_loop_map.find(cur_vertex);
     if (latches.find(cur_vertex) == latches.end() && iter_in_bb_to_loop_map == bb_to_loop_map.end()) {
         cur_loop->AddInnerBlock(cur_vertex);
+        bb_to_loop_map[cur_vertex] = cur_loop;
     } else if (iter_in_bb_to_loop_map != bb_to_loop_map.end()) {
         Loop* loop_of_vertex = iter_in_bb_to_loop_map->second;
         if (loop_of_vertex != cur_loop && !loop_of_vertex->HasAncestor()) {

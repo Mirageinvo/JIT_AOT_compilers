@@ -94,13 +94,34 @@ TEST(LoopAnalyzerTest, FirstExampleTest)
     Loop* answer = graph->BuildLoopTree();
     ASSERT_NE(answer, nullptr);
     ASSERT_EQ(answer, graph->GetRootLoop());
+    auto root_blocks = answer->GetInnerBlocks();
+    std::set<std::string> blocks_names;
+    std::set<std::string> blocks_names_answer({"x"});
+    for (const auto& el : root_blocks) {
+        blocks_names.insert(el->GetName());
+    }
+    ASSERT_EQ(blocks_names, blocks_names_answer);
     auto root_children = answer->GetNextLoops();
     ASSERT_EQ(root_children.size(), 1);
     auto next_children = root_children[0]->GetNextLoops();
     ASSERT_EQ(next_children.size(), 2);
+
+    blocks_names = {};
+    blocks_names_answer = {"f", "h"};
+    for (const auto& el : next_children[0]->GetInnerBlocks()) {
+        blocks_names.insert(el->GetName());
+    }
+    ASSERT_EQ(blocks_names, blocks_names_answer);
+
+    blocks_names = {};
+    blocks_names_answer = {"c"};
+    for (const auto& el : next_children[1]->GetInnerBlocks()) {
+        blocks_names.insert(el->GetName());
+    }
+    ASSERT_EQ(blocks_names, blocks_names_answer);
 }
 
-TEST(LoopAnalyzerTest, NoLoopExampleTest)
+TEST(LoopAnalyzerTest, SecondExampleTest)
 {
     IRGenerator generator;
     generator.CreateGraph();
@@ -141,8 +162,240 @@ TEST(LoopAnalyzerTest, NoLoopExampleTest)
     Loop* answer = graph->BuildLoopTree();
     ASSERT_NE(answer, nullptr);
     ASSERT_EQ(answer, graph->GetRootLoop());
+    auto root_blocks = answer->GetInnerBlocks();
+    std::set<std::string> blocks_names;
+    std::set<std::string> blocks_names_answer({"a", "b", "c", "d", "e", "f", "g"});
+    for (const auto& el : root_blocks) {
+        blocks_names.insert(el->GetName());
+    }
+    ASSERT_EQ(blocks_names, blocks_names_answer);
     auto root_children = answer->GetNextLoops();
     ASSERT_EQ(root_children.size(), 0);
+}
+
+TEST(LoopAnalyzerTest, ThirdExampleTest)
+{
+    IRGenerator generator;
+    generator.CreateGraph();
+    auto* graph = generator.GetGraph();
+    auto* a = generator.CreateEmptyBB("a");
+    auto* b = generator.CreateEmptyBB("b");
+    auto* c = generator.CreateEmptyBB("c");
+    auto* d = generator.CreateEmptyBB("d");
+    auto* e = generator.CreateEmptyBB("e");
+
+    a->AddSuccessor(b);
+
+    b->AddSuccessor(c);
+    b->AddSuccessor(d);
+    b->AddPredecessor(a);
+    b->AddPredecessor(e);
+
+    c->AddPredecessor(b);
+
+    d->AddSuccessor(e);
+    d->AddPredecessor(b);
+
+    e->AddSuccessor(b);
+    e->AddPredecessor(d);
+
+    graph->SetFirstBB(a);
+
+    Loop* answer = graph->BuildLoopTree();
+    ASSERT_NE(answer, nullptr);
+    ASSERT_EQ(answer, graph->GetRootLoop());
+    auto root_blocks = answer->GetInnerBlocks();
+    std::set<std::string> blocks_names;
+    std::set<std::string> blocks_names_answer({"a", "c"});
+    for (const auto& el : root_blocks) {
+        blocks_names.insert(el->GetName());
+    }
+    ASSERT_EQ(blocks_names, blocks_names_answer);
+    auto root_children = answer->GetNextLoops();
+    ASSERT_EQ(root_children.size(), 1);
+}
+
+TEST(LoopAnalyzerTest, FourthExampleTest)
+{
+    IRGenerator generator;
+    generator.CreateGraph();
+    auto* graph = generator.GetGraph();
+    auto* a = generator.CreateEmptyBB("a");
+    auto* b = generator.CreateEmptyBB("b");
+    auto* c = generator.CreateEmptyBB("c");
+    auto* d = generator.CreateEmptyBB("d");
+    auto* e = generator.CreateEmptyBB("e");
+    auto* f = generator.CreateEmptyBB("f");
+
+    a->AddSuccessor(b);
+
+    b->AddSuccessor(c);
+    b->AddPredecessor(a);
+    b->AddPredecessor(e);
+
+    c->AddSuccessor(d);
+    c->AddSuccessor(f);
+    c->AddPredecessor(b);
+
+    d->AddSuccessor(e);
+    d->AddSuccessor(f);
+    d->AddPredecessor(c);
+
+    e->AddSuccessor(b);
+    e->AddPredecessor(d);
+
+    f->AddPredecessor(c);
+    f->AddPredecessor(d);
+
+    graph->SetFirstBB(a);
+
+    Loop* answer = graph->BuildLoopTree();
+    ASSERT_NE(answer, nullptr);
+    ASSERT_EQ(answer, graph->GetRootLoop());
+    auto root_blocks = answer->GetInnerBlocks();
+    std::set<std::string> blocks_names;
+    std::set<std::string> blocks_names_answer({"a", "f"});
+    for (const auto& el : root_blocks) {
+        blocks_names.insert(el->GetName());
+    }
+    ASSERT_EQ(blocks_names, blocks_names_answer);
+    auto root_children = answer->GetNextLoops();
+    ASSERT_EQ(root_children.size(), 1);
+
+    blocks_names = {};
+    blocks_names_answer = {"c", "d"};
+    for (const auto& el : root_children[0]->GetInnerBlocks()) {
+        blocks_names.insert(el->GetName());
+    }
+    ASSERT_EQ(blocks_names, blocks_names_answer);
+}
+
+TEST(LoopAnalyzerTest, FifthExampleTest)
+{
+    IRGenerator generator;
+    generator.CreateGraph();
+    auto* graph = generator.GetGraph();
+    auto* a = generator.CreateEmptyBB("a");
+    auto* b = generator.CreateEmptyBB("b");
+    auto* c = generator.CreateEmptyBB("c");
+    auto* d = generator.CreateEmptyBB("d");
+    auto* e = generator.CreateEmptyBB("e");
+    auto* f = generator.CreateEmptyBB("f");
+    auto* g = generator.CreateEmptyBB("g");
+    auto* h = generator.CreateEmptyBB("h");
+
+    a->AddSuccessor(b);
+    a->AddPredecessor(h);
+
+    b->AddSuccessor(c);
+    b->AddSuccessor(d);
+    b->AddPredecessor(a);
+    b->AddPredecessor(g);
+
+    c->AddSuccessor(e);
+    c->AddSuccessor(f);
+    c->AddPredecessor(b);
+
+    d->AddSuccessor(f);
+    d->AddPredecessor(b);
+
+    e->AddPredecessor(c);
+
+    f->AddSuccessor(g);
+    f->AddPredecessor(c);
+    f->AddPredecessor(d);
+
+    g->AddSuccessor(b);
+    g->AddSuccessor(h);
+    g->AddPredecessor(f);
+
+    h->AddSuccessor(a);
+    h->AddPredecessor(g);
+
+    graph->SetFirstBB(a);
+
+    Loop* answer = graph->BuildLoopTree();
+    ASSERT_NE(answer, nullptr);
+    ASSERT_EQ(answer, graph->GetRootLoop());
+    auto root_blocks = answer->GetInnerBlocks();
+    std::set<std::string> blocks_names;
+    std::set<std::string> blocks_names_answer({"e"});
+    for (const auto& el : root_blocks) {
+        blocks_names.insert(el->GetName());
+    }
+    ASSERT_EQ(blocks_names, blocks_names_answer);
+    auto root_children = answer->GetNextLoops();
+    ASSERT_EQ(root_children.size(), 1);
+
+    blocks_names = {};
+    blocks_names_answer = {};
+    for (const auto& el : root_children[0]->GetInnerBlocks()) {
+        blocks_names.insert(el->GetName());
+    }
+    ASSERT_EQ(blocks_names, blocks_names_answer);
+
+    root_children = root_children[0]->GetNextLoops();
+    blocks_names = {};
+    blocks_names_answer = {"c", "d", "f"};
+    for (const auto& el : root_children[0]->GetInnerBlocks()) {
+        blocks_names.insert(el->GetName());
+    }
+    ASSERT_EQ(blocks_names, blocks_names_answer);
+}
+
+TEST(LoopAnalyzerTest, SixthExampleTest)
+{
+    IRGenerator generator;
+    generator.CreateGraph();
+    auto* graph = generator.GetGraph();
+    auto* a = generator.CreateEmptyBB("a");
+    auto* b = generator.CreateEmptyBB("b");
+    auto* c = generator.CreateEmptyBB("c");
+    auto* d = generator.CreateEmptyBB("d");
+    auto* e = generator.CreateEmptyBB("e");
+    auto* f = generator.CreateEmptyBB("f");
+
+    a->AddSuccessor(b);
+
+    b->AddSuccessor(c);
+    b->AddSuccessor(d);
+    b->AddPredecessor(a);
+    b->AddPredecessor(f);
+
+    c->AddSuccessor(e);
+    c->AddSuccessor(f);
+    c->AddPredecessor(b);
+
+    d->AddSuccessor(f);
+    d->AddPredecessor(b);
+
+    e->AddPredecessor(c);
+
+    f->AddSuccessor(b);
+    f->AddPredecessor(c);
+    f->AddPredecessor(d);
+
+    graph->SetFirstBB(a);
+
+    Loop* answer = graph->BuildLoopTree();
+    ASSERT_NE(answer, nullptr);
+    ASSERT_EQ(answer, graph->GetRootLoop());
+    auto root_blocks = answer->GetInnerBlocks();
+    std::set<std::string> blocks_names;
+    std::set<std::string> blocks_names_answer({"a", "e"});
+    for (const auto& el : root_blocks) {
+        blocks_names.insert(el->GetName());
+    }
+    ASSERT_EQ(blocks_names, blocks_names_answer);
+    auto root_children = answer->GetNextLoops();
+    ASSERT_EQ(root_children.size(), 1);
+
+    blocks_names = {};
+    blocks_names_answer = {"c", "d"};
+    for (const auto& el : root_children[0]->GetInnerBlocks()) {
+        blocks_names.insert(el->GetName());
+    }
+    ASSERT_EQ(blocks_names, blocks_names_answer);
 }
 
 }  // namespace IRGen
